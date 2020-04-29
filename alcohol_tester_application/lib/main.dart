@@ -1,21 +1,23 @@
+import 'package:alcohol_tester_application/moreDetailsPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
-Map<int, Color> color =
-{
-50:Color.fromRGBO(59,59,59, .1),
-100:Color.fromRGBO(59,59,59, .2),
-200:Color.fromRGBO(59,59,59, .3),
-300:Color.fromRGBO(59,59,59, .4),
-400:Color.fromRGBO(59,59,59, .5),
-500:Color.fromRGBO(59,59,59, .6),
-600:Color.fromRGBO(59,59,59, .7),
-700:Color.fromRGBO(59,59,59, .8),
-800:Color.fromRGBO(59,59,59, .9),
-900:Color.fromRGBO(59,59,59, 1),
+Map<int, Color> color = {
+  50: Color.fromRGBO(59, 59, 59, .1),
+  100: Color.fromRGBO(59, 59, 59, .2),
+  200: Color.fromRGBO(59, 59, 59, .3),
+  300: Color.fromRGBO(59, 59, 59, .4),
+  400: Color.fromRGBO(59, 59, 59, .5),
+  500: Color.fromRGBO(59, 59, 59, .6),
+  600: Color.fromRGBO(59, 59, 59, .7),
+  700: Color.fromRGBO(59, 59, 59, .8),
+  800: Color.fromRGBO(59, 59, 59, .9),
+  900: Color.fromRGBO(59, 59, 59, 1),
 };
 void main() => runApp(MyApp());
 
 MaterialColor colorCustom = MaterialColor(0xFF3B3B3B, color);
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -23,7 +25,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Alcohol Tester Application',
       theme: ThemeData(
-       
         primarySwatch: colorCustom,
       ),
       home: MyHomePage(title: 'Alcohol Tester Application'),
@@ -41,68 +42,101 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final myController = TextEditingController();
+  String _weight = '';
+  int _weightGrams = 0;
 
-  void _incrementCounter() {
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    myController.dispose();
+    super.dispose();
+  }
+
+  void _updateWeight(weight) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      prefs.setInt('Weight', weight);
+      print(prefs.getInt('Weight'));
+    });
+  }
+
+  void _goNextPage() {
+    setState(() {
+      _weight = myController.text;
+      _weightGrams = int.parse(_weight) * 454;
+      print(_weightGrams);
+
+      //update user weight in shared preferences
+      _updateWeight(_weightGrams);
+      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+          builder: (context) => new moreDetailsPage(
+                weightGrams: _weightGrams,
+              )));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final nextPage = Container(
+        margin: const EdgeInsets.only(top: 10, bottom: 10),
+        child: Material(
+          elevation: 5.0,
+          borderRadius: BorderRadius.circular(20),
+          color: Color(0xff01A0C7),
+          child: MaterialButton(
+              padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+              onPressed: _goNextPage,
+              child: Text("Continue",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    foreground: Paint()..color = Colors.white,
+                  ))),
+        ));
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text('Alcohol Tester Application'),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+        child: Container(
+          width: double.infinity,
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(36.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'How much do you weigh? (in lb)',
+                  style: TextStyle(fontSize: 20),
+                ),
+                TextField(
+                  controller: myController,
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  onChanged: (text) {
+                    _weight = myController.text;
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Enter Weight",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(2.0),
+                      borderSide: BorderSide(
+                        color: Colors.amber,
+                        style: BorderStyle.solid,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 45.0),
+                nextPage,
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
