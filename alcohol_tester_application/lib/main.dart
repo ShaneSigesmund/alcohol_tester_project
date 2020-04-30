@@ -76,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     final nextPage = Container(
@@ -83,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Material(
           elevation: 5.0,
           borderRadius: BorderRadius.circular(20),
-          color: Color(0xff01A0C7),
+          color: Color(0xff5b5b5b),
           child: MaterialButton(
               padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
               onPressed: _goNextPage,
