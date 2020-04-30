@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: colorCustom,
       ),
-      home: MyHomePage(title: 'Alcohol Tester Application'),
+      home: new MyHomePage(),
     );
   }
 }
@@ -88,14 +88,14 @@ class _MyHomePageState extends State<MyHomePage> {
           child: MaterialButton(
               padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
               onPressed: _goNextPage,
-              child: Text("Continue",
+              child: Text("Next",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,
                     foreground: Paint()..color = Colors.white,
                   ))),
         ));
-    return Scaffold(
+    return new Scaffold(
       appBar: AppBar(
         title: Text('Alcohol Tester Application'),
       ),
