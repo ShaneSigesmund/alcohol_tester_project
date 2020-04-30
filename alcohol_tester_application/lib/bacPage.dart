@@ -8,7 +8,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 double male = 0.68;
 double female = 0.55;
 int weight = 0;
-String gender = "";
+double weightPounds = 0.0;
+String genderString = "";
+
+
+//VALUE AT WHICH BAC DECREASES
+
+double decreaseBAC = 0.016;
+
+
+
+double bacVALUE = 0.0;
+
+double elapsedTime = 0.0;
 
 double percentAlcohol = 0.0;
 
@@ -24,6 +36,9 @@ class bacPage extends StatefulWidget {
 class bac extends State<bacPage> {
   @override
   void initState() {
+    _getWeight();
+    _getBAC();
+
     super.initState();
   }
 
@@ -46,8 +61,44 @@ class bac extends State<bacPage> {
     percentAlcohol += i * (43 * 0.4 * 0.789);
   }
 
+  _getWeight() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      weight = prefs.getInt("Weight");
+      weightPounds = (weight / 454);
+    });
+  }
+
   void _getBAC() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    //Set gender variable
+
+    if (prefs.getDouble("Gender") == 0.68) {
+      genderString = "Male";
+    }
+    else{
+      genderString = "Female";
+    }
+    //Get gender constant * weight
+
+    //Get weight
+    weight = prefs.getInt('Weight');
+
+    //Get gender constant
+
+    double gender = prefs.getDouble('Gender');
+
+    double weightGender = weight * gender;
+
+    double tempBac = percentAlcohol / weightGender;
+    bacVALUE = tempBac * 100;
+
+    print("\nBAC percentage: $bacVALUE");
+
+    elapsedTime = bacVALUE * 0.015;
+
+    print("\nElapsed time until sober: $elapsedTime");
   }
 
   void _goNextPage() {
@@ -134,9 +185,14 @@ class bac extends State<bacPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    
-
-
+                    Text(
+                      'BAC:                   $bacVALUE',
+                      style: TextStyle(fontSize: 25),
+                    ),
+                    Text(
+                      '$weightPounds                   $genderString',
+                      style: TextStyle(fontSize: 25),
+                    ),
                   ],
                 ),
               ),

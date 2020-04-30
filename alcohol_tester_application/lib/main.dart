@@ -2,6 +2,7 @@ import 'package:alcohol_tester_application/moreDetailsPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
+//App bar colours
 Map<int, Color> color = {
   50: Color.fromRGBO(59, 59, 59, .1),
   100: Color.fromRGBO(59, 59, 59, .2),
@@ -14,9 +15,25 @@ Map<int, Color> color = {
   800: Color.fromRGBO(59, 59, 59, .9),
   900: Color.fromRGBO(59, 59, 59, 1),
 };
+
+//Main page colours
+Map<int, Color> color2 = {
+  50: Color.fromRGBO(91,91,91, .1),
+  100: Color.fromRGBO(91,91,91, .2),
+  200: Color.fromRGBO(91,91,91, .3),
+  300: Color.fromRGBO(91,91,91, .4),
+  400: Color.fromRGBO(91,91,91, .5),
+  500: Color.fromRGBO(91,91,91, .6),
+  600: Color.fromRGBO(91,91,91, .7),
+  700: Color.fromRGBO(91,91,91, .8),
+  800: Color.fromRGBO(91,91,91, .9),
+  900: Color.fromRGBO(91,91,91, 1),
+};
+
 void main() => runApp(MyApp());
 
 MaterialColor colorCustom = MaterialColor(0xFF3B3B3B, color);
+MaterialColor colorCustom2 = MaterialColor(0xFF5B5B5B, color2);
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -27,7 +44,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: colorCustom,
       ),
-      home: new MyHomePage(),
+      home: MyHomePage()
     );
   }
 }
@@ -99,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text('Alcohol Tester Application'),
       ),
+      
       body: Center(
         child: Container(
           width: double.infinity,
