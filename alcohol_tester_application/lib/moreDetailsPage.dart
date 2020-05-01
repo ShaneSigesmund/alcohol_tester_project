@@ -125,10 +125,10 @@ class moreDetails extends State<moreDetailsPage> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Please select your gender. \n(Click one of the buttons)',
-                  style: TextStyle(fontSize: 20),
-                ),
+               Text(
+                 'What is your biological sex?',
+                 style: TextStyle(fontSize: 25),
+               ),
                 SizedBox(height: 40),
                 _buildButtons("Male", 0.68),
                 SizedBox(height: 25),

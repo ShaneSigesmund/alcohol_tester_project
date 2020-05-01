@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:alcohol_tester_application/createGraph.dart';
 import 'package:alcohol_tester_application/moreDetailsPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,9 @@ String genderString = "";
 
 double decreaseBAC = 0.016;
 
+//LEGAL BAC IN CANADA
+
+double legalBAC = 0.08;
 
 
 double bacVALUE = 0.0;
@@ -41,6 +45,7 @@ class bac extends State<bacPage> {
 
     super.initState();
   }
+
 
 /*
  * Beer: 12 ounces (341 ml) with 5% alcohol
@@ -96,37 +101,16 @@ class bac extends State<bacPage> {
 
     print("\nBAC percentage: $bacVALUE");
 
-    elapsedTime = bacVALUE * 0.015;
+    //elapsedTime = bacVALUE * 0.015;
 
-    print("\nElapsed time until sober: $elapsedTime");
+   // print("\nElapsed time until sober: $elapsedTime");
+  }
+ double _getTimeUntilSober() {
+   double tempBac2 = bacVALUE - legalBAC;
+   return tempBac2/decreaseBAC;
   }
 
-  void _goNextPage() {
-    setState(() {
-      //update user weight in shared preferences
-
-      // Navigator.of(context).pushReplacement(new MaterialPageRoute(
-      //   builder: (context) => new moreDetailsPage(
-      //     )));
-    });
-  }
-
-  final nextPage = Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 10),
-      child: Material(
-        elevation: 5.0,
-        borderRadius: BorderRadius.circular(20),
-        color: Color(0xff5b5b5b),
-        child: MaterialButton(
-            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-            // onPressed: //_goNextPage,
-            child: Text("Continue",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  foreground: Paint()..color = Colors.white,
-                ))),
-      ));
+ 
 
   Column _buildButtons(String name, double value) {
     return Column(
@@ -164,6 +148,33 @@ class bac extends State<bacPage> {
   @override
   Widget build(BuildContext context) {
     // print(weightGrams);
+
+     void _goNextPage() {
+    setState(() {
+      //update user weight in shared preferences
+
+       //Navigator.of(context).pushReplacement(new MaterialPageRoute(
+         //builder: (context) => new graphPage(
+          //)));
+    });
+  }
+
+  final nextPage = Container(
+      margin: const EdgeInsets.only(top: 10, bottom: 10),
+      child: Material(
+        elevation: 5.0,
+        borderRadius: BorderRadius.circular(20),
+        color: Color(0xff5b5b5b),
+        child: MaterialButton(
+            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+             onPressed: _goNextPage,
+            child: Text("Continue",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  foreground: Paint()..color = Colors.white,
+                ))),
+      ));
     return new WillPopScope(
         onWillPop: () async => false,
         child: Scaffold(
@@ -173,7 +184,7 @@ class bac extends State<bacPage> {
                   icon: Icon(Icons.arrow_back),
                   onPressed: () {
                     Navigator.of(context).pushReplacement(new MaterialPageRoute(
-                        builder: (context) => new moreDetailsPage()));
+                        builder: (context) => new moreDetailsPage(weightGrams: null,)));
                   })),
           body: Center(
             child: Container(
@@ -193,6 +204,7 @@ class bac extends State<bacPage> {
                       '$weightPounds                   $genderString',
                       style: TextStyle(fontSize: 25),
                     ),
+                    nextPage,
                   ],
                 ),
               ),
@@ -200,4 +212,12 @@ class bac extends State<bacPage> {
           ),
         ));
   }
+}
+
+//Create time object for graph
+class TimeUntilSober {
+  final double time;
+  final int bacVal;
+
+  TimeUntilSober(this.time, this.bacVal);
 }
