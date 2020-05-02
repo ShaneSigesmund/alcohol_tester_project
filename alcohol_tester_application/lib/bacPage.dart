@@ -4,6 +4,7 @@ import 'package:alcohol_tester_application/createGraph.dart';
 import 'package:alcohol_tester_application/moreDetailsPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:shared_preferences/shared_preferences.dart';
 
 double male = 0.68;
@@ -12,7 +13,6 @@ int weight = 0;
 double weightPounds = 0.0;
 String genderString = "";
 
-
 //VALUE AT WHICH BAC DECREASES
 
 double decreaseBAC = 0.016;
@@ -20,7 +20,6 @@ double decreaseBAC = 0.016;
 //LEGAL BAC IN CANADA
 
 double legalBAC = 0.08;
-
 
 double bacVALUE = 0.0;
 
@@ -32,9 +31,10 @@ class bacPage extends StatefulWidget {
   bacPage({Key key, this.title}) : super(key: key);
 
   final String title;
+  List<charts.Series> seriesList;
 
   @override
-  bac createState() => bac();
+  bac createState() => bac(seriesList);
 }
 
 class bac extends State<bacPage> {
@@ -46,7 +46,19 @@ class bac extends State<bacPage> {
     super.initState();
   }
 
+  final bool animate = false;
 
+  List<charts.Series> seriesList;
+
+  bac(this.seriesList, {bool animate});
+
+  factory bac.withSampleData() {
+    return new bac(
+      _createSampleData(),
+      // Disable animations for image tests.
+      animate: false,
+    );
+  }
 /*
  * Beer: 12 ounces (341 ml) with 5% alcohol
  * Wine: 5 ounces (142 ml) with 12% alcohol
@@ -81,8 +93,7 @@ class bac extends State<bacPage> {
 
     if (prefs.getDouble("Gender") == 0.68) {
       genderString = "Male";
-    }
-    else{
+    } else {
       genderString = "Female";
     }
     //Get gender constant * weight
@@ -103,14 +114,44 @@ class bac extends State<bacPage> {
 
     //elapsedTime = bacVALUE * 0.015;
 
-   // print("\nElapsed time until sober: $elapsedTime");
-  }
- double _getTimeUntilSober() {
-   double tempBac2 = bacVALUE - legalBAC;
-   return tempBac2/decreaseBAC;
+    // print("\nElapsed time until sober: $elapsedTime");
   }
 
- 
+  double _getTimeUntilSober() {
+    double tempBac2 = bacVALUE - legalBAC;
+    return tempBac2 / decreaseBAC;
+  }
+
+//Define what data goes into the graph
+
+  static List<charts.Series<TimeUntilSober, int>> _createSampleData() {
+    List<TimeUntilSober> chartData = [];
+
+    double tempBac2 = bacVALUE - legalBAC;
+    double _getTimeUntilSober = tempBac2 / decreaseBAC;
+
+    double result = _getTimeUntilSober;
+    int temp = result.round();
+
+    //for (int i = 0; i < temp; i++) {
+    //chartData.add(new TimeUntilSober(i, (bacVALUE - decreaseBAC)));
+    //}
+    chartData = [
+      new TimeUntilSober(3, 200),
+      new TimeUntilSober(2, 199),
+      new TimeUntilSober(1, 25),
+      new TimeUntilSober(0, 5),
+    ];
+    return [
+      new charts.Series<TimeUntilSober, int>(
+        id: 'BAC',
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (TimeUntilSober bacs, _) => bacs.time,
+        measureFn: (TimeUntilSober bacs, _) => bacs.bacVal,
+        data: chartData,
+      )
+    ];
+  }
 
   Column _buildButtons(String name, double value) {
     return Column(
@@ -145,36 +186,36 @@ class bac extends State<bacPage> {
   final beer = TextEditingController();
   final wine = TextEditingController();
   final spirits = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // print(weightGrams);
 
-     void _goNextPage() {
-    setState(() {
-      //update user weight in shared preferences
+    void _goNextPage() {
+      setState(() {
+        //update user weight in shared preferences
 
-       //Navigator.of(context).pushReplacement(new MaterialPageRoute(
-         //builder: (context) => new graphPage(
-          //)));
-    });
-  }
+        Navigator.of(context).pushReplacement(new MaterialPageRoute(
+            builder: (context) => new graph.withSampleData()));
+      });
+    }
 
-  final nextPage = Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 10),
-      child: Material(
-        elevation: 5.0,
-        borderRadius: BorderRadius.circular(20),
-        color: Color(0xff5b5b5b),
-        child: MaterialButton(
-            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-             onPressed: _goNextPage,
-            child: Text("Continue",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  foreground: Paint()..color = Colors.white,
-                ))),
-      ));
+    final nextPage = Container(
+        margin: const EdgeInsets.only(top: 10, bottom: 10),
+        child: Material(
+          elevation: 5.0,
+          borderRadius: BorderRadius.circular(20),
+          color: Color(0xff5b5b5b),
+          child: MaterialButton(
+              padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+              onPressed: _goNextPage,
+              child: Text("Continue",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    foreground: Paint()..color = Colors.white,
+                  ))),
+        ));
     return new WillPopScope(
         onWillPop: () async => false,
         child: Scaffold(
@@ -184,7 +225,9 @@ class bac extends State<bacPage> {
                   icon: Icon(Icons.arrow_back),
                   onPressed: () {
                     Navigator.of(context).pushReplacement(new MaterialPageRoute(
-                        builder: (context) => new moreDetailsPage(weightGrams: null,)));
+                        builder: (context) => new moreDetailsPage(
+                              weightGrams: null,
+                            )));
                   })),
           body: Center(
             child: Container(
@@ -204,6 +247,10 @@ class bac extends State<bacPage> {
                       '$weightPounds                   $genderString',
                       style: TextStyle(fontSize: 25),
                     ),
+                    SizedBox(
+                      height: 200,
+                      child: charts.LineChart(_createSampleData()),
+                    ),
                     nextPage,
                   ],
                 ),
@@ -216,8 +263,9 @@ class bac extends State<bacPage> {
 
 //Create time object for graph
 class TimeUntilSober {
-  final double time;
-  final int bacVal;
+  final int time;
+  final double bacVal;
 
   TimeUntilSober(this.time, this.bacVal);
 }
+

@@ -31,6 +31,8 @@ class moreDetails extends State<moreDetailsPage> {
     super.initState();
   }
 
+
+
 /*
  * Beer: 12 ounces (341 ml) with 5% alcohol
  * Wine: 5 ounces (142 ml) with 12% alcohol
@@ -125,15 +127,16 @@ class moreDetails extends State<moreDetailsPage> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-               Text(
-                 'What is your biological sex?',
-                 style: TextStyle(fontSize: 25),
-               ),
+                Text(
+                  'What is your biological sex?',
+                  style: TextStyle(fontSize: 25),
+                ),
                 SizedBox(height: 40),
                 _buildButtons("Male", 0.68),
                 SizedBox(height: 25),
                 _buildButtons("Female", 0.55),
                 SizedBox(height: 40),
+                
                 nextPage,
               ],
             ),
@@ -150,12 +153,13 @@ class moreDetails extends State<moreDetailsPage> {
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back),
                   onPressed: () async {
-                   Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (context) {
-            return MyHomePage();
-          }));
+                    Navigator.of(context).pushReplacement(
+                        new MaterialPageRoute(builder: (context) {
+                      return MyHomePage();
+                    }));
                   },
                 )),
             body: makeGenderUI()));
   }
 }
+
