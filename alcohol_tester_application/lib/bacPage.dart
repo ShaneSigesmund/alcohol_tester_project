@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:alcohol_tester_application/createGraph.dart';
+import 'package:alcohol_tester_application/main.dart';
 import 'package:alcohol_tester_application/moreDetailsPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -133,19 +134,25 @@ class bac extends State<bacPage> {
     double result = _getTimeUntilSober;
     int temp = result.round();
 
-    //for (int i = 0; i < temp; i++) {
-    //chartData.add(new TimeUntilSober(i, (bacVALUE - decreaseBAC)));
-    //}
-    chartData = [
-      new TimeUntilSober(3, 200),
-      new TimeUntilSober(2, 199),
-      new TimeUntilSober(1, 25),
-      new TimeUntilSober(0, 5),
-    ];
+    for (int i = temp; i > 0; i--) {
+    chartData.add(new TimeUntilSober(i, (bacVALUE - decreaseBAC)));
+    }
+   
+    var axis = charts.NumericAxisSpec(
+        renderSpec: charts.GridlineRendererSpec(
+      labelStyle: charts.TextStyleSpec(
+          fontSize: 10,
+          color: charts.MaterialPalette
+              .white), //chnage white color as per your requirement.
+    ));
     return [
       new charts.Series<TimeUntilSober, int>(
         id: 'BAC',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        outsideLabelStyleAccessorFn: (_, __) => charts.TextStyleSpec(
+          fontSize: 10,
+          color: charts.MaterialPalette.white,
+        ),
         domainFn: (TimeUntilSober bacs, _) => bacs.time,
         measureFn: (TimeUntilSober bacs, _) => bacs.bacVal,
         data: chartData,
@@ -216,9 +223,34 @@ class bac extends State<bacPage> {
                     foreground: Paint()..color = Colors.white,
                   ))),
         ));
+
+    Container createTextBac(String text) {
+      return Container(
+          width: 2000,
+          height: 40,
+          child: new Container(
+            child: Material(
+              elevation: 5.0,
+              borderRadius: BorderRadius.circular(10),
+              color: colorCustom,
+              child: Center(
+                child: Text(
+                  "$text",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 25,
+                  ),
+                ),
+              ),
+            ),
+          ));
+    }
+
     return new WillPopScope(
         onWillPop: () async => false,
         child: Scaffold(
+          backgroundColor: colorCustom,
           appBar: new AppBar(
               title: Text('Alcohol Tester Application'),
               leading: IconButton(
@@ -239,17 +271,37 @@ class bac extends State<bacPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    createTextBac('BAC:                   $bacVALUE%'),
                     Text(
-                      'BAC:                   $bacVALUE',
-                      style: TextStyle(fontSize: 25),
-                    ),
-                    Text(
-                      '$weightPounds                   $genderString',
-                      style: TextStyle(fontSize: 25),
+                      "$weightPounds    $genderString",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 25,
+                      ),
                     ),
                     SizedBox(
                       height: 200,
-                      child: charts.LineChart(_createSampleData()),
+                      child: charts.LineChart(_createSampleData(),
+                      animate: false, 
+                      domainAxis: charts.AxisSpec(
+                        renderSpec: charts.SmallTickRendererSpec(
+                          labelStyle: charts.TextStyleSpec(
+                            fontSize: 10,
+                            color: charts.MaterialPalette.white, 
+                          )
+                        )
+                      ),
+                      primaryMeasureAxis: charts.AxisSpec(
+                        renderSpec: charts.GridlineRendererSpec(
+                          labelStyle: charts.TextStyleSpec(
+                            color: charts.MaterialPalette.white,
+                          )
+
+                        )
+                      ),
+
+                      ),
                     ),
                     nextPage,
                   ],
@@ -268,4 +320,3 @@ class TimeUntilSober {
 
   TimeUntilSober(this.time, this.bacVal);
 }
-
