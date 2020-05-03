@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 double male = 0.68;
 double female = 0.55;
 int weight = 0;
@@ -114,6 +115,7 @@ class moreDetails extends State<moreDetailsPage> {
             ),
           ]);
     }
+
 
     Center makeGenderUI() {
       return Center(

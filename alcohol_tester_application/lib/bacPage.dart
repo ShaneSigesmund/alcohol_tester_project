@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 double male = 0.68;
 double female = 0.55;
@@ -14,6 +15,11 @@ int weight = 0;
 double weightPounds = 0.0;
 String genderString = "";
 
+int shotCount = 0;
+int wineCount = 0;
+int spiritCount = 0;
+
+int currentCounter = 0;
 //VALUE AT WHICH BAC DECREASES
 
 double decreaseBAC = 0.016;
@@ -67,16 +73,25 @@ class bac extends State<bacPage> {
  * 
  * One STANDARD Canadian drink contains: 13.6 grams of alcohol
  */
-  void _getBeerGrams(int i) {
-    percentAlcohol += i * (341 * 0.05 * 0.789);
+  void _getBeerGrams() {
+    percentAlcohol += (341 * 0.05 * 0.789);
+
+    print("Consumed $percentAlcohol added beer");
+    _getBAC();
   }
 
-  void _getWineGrams(int i) {
-    percentAlcohol += i * (142 * 0.12 * 0.789);
+  void _getWineGrams() {
+    percentAlcohol += (142 * 0.12 * 0.789);
+
+    print("Consumed $percentAlcohol added wine");
+    _getBAC();
   }
 
-  void _getSpiritsGrams(int i) {
-    percentAlcohol += i * (43 * 0.4 * 0.789);
+  void _getSpiritsGrams() {
+    percentAlcohol += (43 * 0.4 * 0.789);
+
+    print("Consumed $percentAlcohol added spirits");
+    _getBAC();
   }
 
   _getWeight() async {
@@ -109,8 +124,9 @@ class bac extends State<bacPage> {
     double weightGender = weight * gender;
 
     double tempBac = percentAlcohol / weightGender;
-    bacVALUE = tempBac * 100;
 
+    //% alcohol in your body
+    bacVALUE = tempBac * 100;
     print("\nBAC percentage: $bacVALUE");
 
     //elapsedTime = bacVALUE * 0.015;
@@ -127,17 +143,16 @@ class bac extends State<bacPage> {
 
   static List<charts.Series<TimeUntilSober, int>> _createSampleData() {
     List<TimeUntilSober> chartData = [];
-
     double tempBac2 = bacVALUE - legalBAC;
     double _getTimeUntilSober = tempBac2 / decreaseBAC;
 
     double result = _getTimeUntilSober;
     int temp = result.round();
 
-    for (int i = temp; i > 0; i--) {
-    chartData.add(new TimeUntilSober(i, (bacVALUE - decreaseBAC)));
+    for (int i = 0; i < temp; i++) {
+      chartData.add(new TimeUntilSober(i, (bacVALUE - decreaseBAC)));
     }
-   
+
     var axis = charts.NumericAxisSpec(
         renderSpec: charts.GridlineRendererSpec(
       labelStyle: charts.TextStyleSpec(
@@ -158,6 +173,65 @@ class bac extends State<bacPage> {
         data: chartData,
       )
     ];
+  }
+
+  Future<String> loadAsset() async {
+    return await rootBundle.loadString('assets/config.json');
+  }
+
+  Row buttonCreator1() {
+    return new Row(
+      children: <Widget>[
+        Expanded(
+            child: RaisedButton.icon(
+          onPressed: () {
+            setState(() {
+              shotCount++;
+              _getBeerGrams();
+            });
+          },
+          icon: Image.asset('graphics/beer.png', height: 40, width: 40),
+          label: Text("$shotCount"),
+        )),
+        Expanded(
+            child: RaisedButton.icon(
+          onPressed: () {
+            setState(() {
+              wineCount++;
+              _getWineGrams();
+            });
+          },
+          icon: Image.asset('graphics/wine.png', height: 40, width: 40),
+          label: Text("$wineCount"),
+        )),
+      ],
+    );
+  }
+
+  Row buttonCreator2() {
+    return new Row(
+      children: <Widget>[
+        Expanded(
+            child: RaisedButton.icon(
+          onPressed: () {
+            setState(() {
+              spiritCount++;
+              _getSpiritsGrams();
+            });
+          },
+          icon: Image.asset('graphics/shot.png', height: 40, width: 40),
+          label: Text("$spiritCount"),
+        )),
+        Expanded(
+            child: RaisedButton.icon(
+          onPressed: () {
+            setState(() {});
+          },
+          icon: Image.asset('graphics/blank.png', height: 40, width: 40),
+          label: Text(""),
+        )),
+      ],
+    );
   }
 
   Column _buildButtons(String name, double value) {
@@ -197,7 +271,7 @@ class bac extends State<bacPage> {
   @override
   Widget build(BuildContext context) {
     // print(weightGrams);
-
+    String getBetterBac = (bacVALUE).toStringAsFixed(5);
     void _goNextPage() {
       setState(() {
         //update user weight in shared preferences
@@ -252,15 +326,37 @@ class bac extends State<bacPage> {
         child: Scaffold(
           backgroundColor: colorCustom,
           appBar: new AppBar(
-              title: Text('Alcohol Tester Application'),
-              leading: IconButton(
-                  icon: Icon(Icons.arrow_back),
+            title: Text('Alcohol Tester Application'),
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(new MaterialPageRoute(
+                      builder: (context) => new moreDetailsPage(
+                            weightGrams: null,
+                          )));
+                }),
+            actions: [
+              RaisedButton(
+                  color: colorCustom,
+                  textColor: Colors.white,
+                  elevation: 0,
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(new MaterialPageRoute(
-                        builder: (context) => new moreDetailsPage(
-                              weightGrams: null,
-                            )));
-                  })),
+                    setState(() {
+                      bacVALUE = 0.0;
+                      percentAlcohol = 0;
+                      shotCount = 0;
+                      wineCount = 0;
+                      spiritCount = 0;
+                    });
+                  },
+                  child: Text(
+                    'Reset',
+                  style: TextStyle(
+                    fontSize: 20
+                  ),
+                  )),
+            ],
+          ),
           body: Center(
             child: Container(
               width: double.infinity,
@@ -271,7 +367,7 @@ class bac extends State<bacPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    createTextBac('BAC:                   $bacVALUE%'),
+                    createTextBac('BAC:                   $getBetterBac%'),
                     Text(
                       "$weightPounds    $genderString",
                       textAlign: TextAlign.center,
@@ -282,27 +378,24 @@ class bac extends State<bacPage> {
                     ),
                     SizedBox(
                       height: 200,
-                      child: charts.LineChart(_createSampleData(),
-                      animate: false, 
-                      domainAxis: charts.AxisSpec(
-                        renderSpec: charts.SmallTickRendererSpec(
-                          labelStyle: charts.TextStyleSpec(
-                            fontSize: 10,
-                            color: charts.MaterialPalette.white, 
-                          )
-                        )
-                      ),
-                      primaryMeasureAxis: charts.AxisSpec(
-                        renderSpec: charts.GridlineRendererSpec(
-                          labelStyle: charts.TextStyleSpec(
-                            color: charts.MaterialPalette.white,
-                          )
-
-                        )
-                      ),
-
+                      child: charts.LineChart(
+                        _createSampleData(),
+                        animate: false,
+                        domainAxis: charts.AxisSpec(
+                            renderSpec: charts.SmallTickRendererSpec(
+                                labelStyle: charts.TextStyleSpec(
+                          fontSize: 10,
+                          color: charts.MaterialPalette.white,
+                        ))),
+                        primaryMeasureAxis: charts.AxisSpec(
+                            renderSpec: charts.GridlineRendererSpec(
+                                labelStyle: charts.TextStyleSpec(
+                          color: charts.MaterialPalette.white,
+                        ))),
                       ),
                     ),
+                    buttonCreator1(),
+                    buttonCreator2(),
                     nextPage,
                   ],
                 ),
