@@ -20,6 +20,13 @@ int wineCount = 0;
 int spiritCount = 0;
 
 int currentCounter = 0;
+
+int timeHolder = 0;
+
+int numHours2 = 0;
+
+int addedHours = 0;
+int addedHours2 = 0;
 //VALUE AT WHICH BAC DECREASES
 
 double decreaseBAC = 0.015;
@@ -138,20 +145,29 @@ class bac extends State<bacPage> {
     //determine how many hours needed on graph
 
     int currentHour = DateTime.now().hour;
+    int day = DateTime.now().day;
+    DateTime now = DateTime.now();
     int numHours = ((bacVALUE - 0.08) / decreaseBAC).round();
 
     int twentyfourHour = 24 % (currentHour);
+
     while (bacVALUE > 0.08) {
       print(currentCounter);
-      int numHours2 = ((bacVALUE - 0.08) / decreaseBAC).round();
+      timeHolder = addedHours2;
+      numHours2 = ((bacVALUE - 0.08) / decreaseBAC).round();
 
-      int addedHours = currentHour + numHours2;
-      int addedHours2 = (12 - ((-addedHours) % 12));
+      addedHours = currentHour + numHours2;
+      addedHours2 = (12 - ((-addedHours) % 12));
       bacVALUE -= decreaseBAC;
+      DateTime currentDiff = now.add(Duration(hours: numHours2));
+      
       print("added hours: $addedHours $addedHours2 $numHours2");
       currentCounter++;
-     TimeUntilSober c = new TimeUntilSober(addedHours2, temporaryPA);
-     chartData.add(c);
+
+        TimeUntilSober c = new TimeUntilSober(currentDiff, temporaryPA);
+ 
+      chartData.add(c);
+
       break;
     }
     
@@ -168,7 +184,7 @@ class bac extends State<bacPage> {
 
 //Define what data goes into the graph
 
-  static List<charts.Series<TimeUntilSober, int>> _createSampleData() {
+  static List<charts.Series<TimeUntilSober, DateTime>> _createSampleData() {
     double tempBac2 = bacVALUE - legalBAC;
     double _getTimeUntilSober = tempBac2 / decreaseBAC;
 
@@ -185,7 +201,7 @@ class bac extends State<bacPage> {
     int c;
 
     return [
-      new charts.Series<TimeUntilSober, int>(
+      new charts.Series<TimeUntilSober, DateTime>(
         id: "BAC",
         data: chartData,
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
@@ -401,7 +417,7 @@ class bac extends State<bacPage> {
                     ),
                     SizedBox(
                       height: 200,
-                      child: charts.LineChart(
+                      child: charts.TimeSeriesChart(
                         _createSampleData(),
                         animate: false,
                       ),
@@ -420,7 +436,7 @@ class bac extends State<bacPage> {
 
 //Create time object for graph
 class TimeUntilSober {
-  final int time;
+  final DateTime time;
   final double bacVal;
 
   TimeUntilSober(this.time, this.bacVal);
