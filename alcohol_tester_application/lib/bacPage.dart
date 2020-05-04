@@ -22,7 +22,7 @@ int spiritCount = 0;
 int currentCounter = 0;
 //VALUE AT WHICH BAC DECREASES
 
-double decreaseBAC = 0.016;
+double decreaseBAC = 0.015;
 
 //LEGAL BAC IN CANADA
 
@@ -141,27 +141,32 @@ class bac extends State<bacPage> {
 
 //Define what data goes into the graph
 
-  static List<charts.Series<TimeUntilSober, int>> _createSampleData() {
-    List<TimeUntilSober> chartData = [];
+  static List<charts.Series<TimeUntilSober, DateTime>> _createSampleData() {
+   // List<TimeUntilSober> chartData = [];
     double tempBac2 = bacVALUE - legalBAC;
     double _getTimeUntilSober = tempBac2 / decreaseBAC;
 
+    var now = new DateTime.now();
+    int currentHour = now.hour;
+    final chartData = [
+      new TimeUntilSober(new DateTime(now.year, now.month, currentHour + 1), 5),
+      new TimeUntilSober(
+          new DateTime( 12%(currentHour + 2)), 25),
+      new TimeUntilSober(
+          new DateTime( 12%(currentHour + 3)), 100),
+      new TimeUntilSober(
+          new DateTime( 12%(currentHour + 4)), 75),
+    ];
     double result = _getTimeUntilSober;
     int temp = result.round();
-
-    for (int i = 0; i < temp; i++) {
-      chartData.add(new TimeUntilSober(i, (bacVALUE - decreaseBAC)));
-    }
-
-    var axis = charts.NumericAxisSpec(
-        renderSpec: charts.GridlineRendererSpec(
-      labelStyle: charts.TextStyleSpec(
-          fontSize: 10,
-          color: charts.MaterialPalette
-              .white), //chnage white color as per your requirement.
-    ));
+    int c;
+    // for (int i = 0; i < temp; i++) {
+    // chartData.add(new TimeUntilSober(i, (bacVALUE - decreaseBAC)));
+    //c= chartData.length;
+    //print("ISSA LENGTH : $c");
+    // }
     return [
-      new charts.Series<TimeUntilSober, int>(
+      new charts.Series<TimeUntilSober, DateTime>(
         id: 'BAC',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         outsideLabelStyleAccessorFn: (_, __) => charts.TextStyleSpec(
@@ -351,9 +356,7 @@ class bac extends State<bacPage> {
                   },
                   child: Text(
                     'Reset',
-                  style: TextStyle(
-                    fontSize: 20
-                  ),
+                    style: TextStyle(fontSize: 20),
                   )),
             ],
           ),
@@ -378,15 +381,9 @@ class bac extends State<bacPage> {
                     ),
                     SizedBox(
                       height: 200,
-                      child: charts.LineChart(
+                      child: charts.TimeSeriesChart(
                         _createSampleData(),
                         animate: false,
-                        domainAxis: charts.AxisSpec(
-                            renderSpec: charts.SmallTickRendererSpec(
-                                labelStyle: charts.TextStyleSpec(
-                          fontSize: 10,
-                          color: charts.MaterialPalette.white,
-                        ))),
                         primaryMeasureAxis: charts.AxisSpec(
                             renderSpec: charts.GridlineRendererSpec(
                                 labelStyle: charts.TextStyleSpec(
@@ -408,7 +405,7 @@ class bac extends State<bacPage> {
 
 //Create time object for graph
 class TimeUntilSober {
-  final int time;
+  final DateTime time;
   final double bacVal;
 
   TimeUntilSober(this.time, this.bacVal);
