@@ -33,6 +33,7 @@ double bacVALUE = 0.0;
 double elapsedTime = 0.0;
 
 double percentAlcohol = 0.0;
+List<TimeUntilSober> chartData = [];
 
 class bacPage extends StatefulWidget {
   bacPage({Key key, this.title}) : super(key: key);
@@ -94,6 +95,8 @@ class bac extends State<bacPage> {
     _getBAC();
   }
 
+  _addToChartData() {}
+
   _getWeight() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -112,6 +115,9 @@ class bac extends State<bacPage> {
     } else {
       genderString = "Female";
     }
+
+    double temporaryPA = bacVALUE;
+
     //Get gender constant * weight
 
     //Get weight
@@ -129,6 +135,27 @@ class bac extends State<bacPage> {
     bacVALUE = tempBac * 100;
     print("\nBAC percentage: $bacVALUE");
 
+    //determine how many hours needed on graph
+
+    int currentHour = DateTime.now().hour;
+    int numHours = ((bacVALUE - 0.08) / decreaseBAC).round();
+
+    int twentyfourHour = 24 % (currentHour);
+    while (bacVALUE > 0.08) {
+      print(currentCounter);
+      int numHours2 = ((bacVALUE - 0.08) / decreaseBAC).round();
+
+      int addedHours = currentHour + numHours2;
+      int addedHours2 = (12 - ((-addedHours) % 12));
+      bacVALUE -= decreaseBAC;
+      print("added hours: $addedHours $addedHours2 $numHours2");
+      currentCounter++;
+     TimeUntilSober c = new TimeUntilSober(addedHours2, temporaryPA);
+     chartData.add(c);
+      break;
+    }
+    
+
     //elapsedTime = bacVALUE * 0.015;
 
     // print("\nElapsed time until sober: $elapsedTime");
@@ -141,33 +168,26 @@ class bac extends State<bacPage> {
 
 //Define what data goes into the graph
 
-  static List<charts.Series<TimeUntilSober, DateTime>> _createSampleData() {
-   // List<TimeUntilSober> chartData = [];
+  static List<charts.Series<TimeUntilSober, int>> _createSampleData() {
     double tempBac2 = bacVALUE - legalBAC;
     double _getTimeUntilSober = tempBac2 / decreaseBAC;
 
     var now = new DateTime.now();
     int currentHour = now.hour;
-    final chartData = [
-      new TimeUntilSober(new DateTime(now.year, now.month, currentHour + 1), 5),
-      new TimeUntilSober(
-          new DateTime( 12%(currentHour + 2)), 25),
-      new TimeUntilSober(
-          new DateTime( 12%(currentHour + 3)), 100),
-      new TimeUntilSober(
-          new DateTime( 12%(currentHour + 4)), 75),
-    ];
+    //final chartData = [
+    //   new TimeUntilSober(new DateTime((currentHour + 1)), 5),
+    // new TimeUntilSober(new DateTime((currentHour + 2)), 25),
+    // new TimeUntilSober(new DateTime((currentHour + 3)), 200),
+    // new TimeUntilSober(new DateTime( (currentHour + 4)), 75),
+    //];
     double result = _getTimeUntilSober;
     int temp = result.round();
     int c;
-    // for (int i = 0; i < temp; i++) {
-    // chartData.add(new TimeUntilSober(i, (bacVALUE - decreaseBAC)));
-    //c= chartData.length;
-    //print("ISSA LENGTH : $c");
-    // }
+
     return [
-      new charts.Series<TimeUntilSober, DateTime>(
-        id: 'BAC',
+      new charts.Series<TimeUntilSober, int>(
+        id: "BAC",
+        data: chartData,
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         outsideLabelStyleAccessorFn: (_, __) => charts.TextStyleSpec(
           fontSize: 10,
@@ -175,7 +195,6 @@ class bac extends State<bacPage> {
         ),
         domainFn: (TimeUntilSober bacs, _) => bacs.time,
         measureFn: (TimeUntilSober bacs, _) => bacs.bacVal,
-        data: chartData,
       )
     ];
   }
@@ -352,6 +371,7 @@ class bac extends State<bacPage> {
                       shotCount = 0;
                       wineCount = 0;
                       spiritCount = 0;
+                      chartData.clear();
                     });
                   },
                   child: Text(
@@ -381,14 +401,9 @@ class bac extends State<bacPage> {
                     ),
                     SizedBox(
                       height: 200,
-                      child: charts.TimeSeriesChart(
+                      child: charts.LineChart(
                         _createSampleData(),
                         animate: false,
-                        primaryMeasureAxis: charts.AxisSpec(
-                            renderSpec: charts.GridlineRendererSpec(
-                                labelStyle: charts.TextStyleSpec(
-                          color: charts.MaterialPalette.white,
-                        ))),
                       ),
                     ),
                     buttonCreator1(),
@@ -405,7 +420,7 @@ class bac extends State<bacPage> {
 
 //Create time object for graph
 class TimeUntilSober {
-  final DateTime time;
+  final int time;
   final double bacVal;
 
   TimeUntilSober(this.time, this.bacVal);
