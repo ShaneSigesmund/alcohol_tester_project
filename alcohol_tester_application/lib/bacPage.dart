@@ -6,8 +6,10 @@ import 'package:alcohol_tester_application/moreDetailsPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:intl/date_symbol_data_local.dart';
 
 double male = 0.68;
 double female = 0.55;
@@ -27,6 +29,9 @@ int numHours2 = 0;
 
 int addedHours = 0;
 int addedHours2 = 0;
+
+DateTime currentDiff;
+
 //VALUE AT WHICH BAC DECREASES
 
 double decreaseBAC = 0.015;
@@ -116,12 +121,13 @@ class bac extends State<bacPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     //Set gender variable
-
-    if (prefs.getDouble("Gender") == 0.68) {
-      genderString = "Male";
-    } else {
-      genderString = "Female";
-    }
+    setState(() {
+      if (prefs.getDouble("Gender") == 0.68) {
+        genderString = "Male";
+      } else {
+        genderString = "Female";
+      }
+    });
 
     double temporaryPA = bacVALUE;
 
@@ -159,27 +165,20 @@ class bac extends State<bacPage> {
       addedHours = currentHour + numHours2;
       addedHours2 = (12 - ((-addedHours) % 12));
       bacVALUE -= decreaseBAC;
-      DateTime currentDiff = now.add(Duration(hours: numHours2));
-      
+      currentDiff = now.add(Duration(hours: numHours2));
+
       print("added hours: $addedHours $addedHours2 $numHours2");
       currentCounter++;
+      TimeUntilSober c = new TimeUntilSober(currentDiff, temporaryPA);
 
-        TimeUntilSober c = new TimeUntilSober(currentDiff, temporaryPA);
- 
       chartData.add(c);
 
       break;
     }
-    
 
     //elapsedTime = bacVALUE * 0.015;
 
     // print("\nElapsed time until sober: $elapsedTime");
-  }
-
-  double _getTimeUntilSober() {
-    double tempBac2 = bacVALUE - legalBAC;
-    return tempBac2 / decreaseBAC;
   }
 
 //Define what data goes into the graph
@@ -230,7 +229,7 @@ class bac extends State<bacPage> {
               _getBeerGrams();
             });
           },
-          icon: Image.asset('graphics/beer.png', height: 40, width: 40),
+          icon: Image.asset('graphics/beer.png', height: 60, width: 40),
           label: Text("$shotCount"),
         )),
         Expanded(
@@ -241,7 +240,7 @@ class bac extends State<bacPage> {
               _getWineGrams();
             });
           },
-          icon: Image.asset('graphics/wine.png', height: 40, width: 40),
+          icon: Image.asset('graphics/wine.png', height: 60, width: 40),
           label: Text("$wineCount"),
         )),
       ],
@@ -259,7 +258,7 @@ class bac extends State<bacPage> {
               _getSpiritsGrams();
             });
           },
-          icon: Image.asset('graphics/shot.png', height: 40, width: 40),
+          icon: Image.asset('graphics/shot.png', height: 60, width: 40),
           label: Text("$spiritCount"),
         )),
         Expanded(
@@ -267,7 +266,7 @@ class bac extends State<bacPage> {
           onPressed: () {
             setState(() {});
           },
-          icon: Image.asset('graphics/blank.png', height: 40, width: 40),
+          icon: Image.asset('graphics/blank.png', height: 60, width: 40),
           label: Text(""),
         )),
       ],
@@ -321,23 +320,6 @@ class bac extends State<bacPage> {
       });
     }
 
-    final nextPage = Container(
-        margin: const EdgeInsets.only(top: 10, bottom: 10),
-        child: Material(
-          elevation: 5.0,
-          borderRadius: BorderRadius.circular(20),
-          color: Color(0xff5b5b5b),
-          child: MaterialButton(
-              padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              onPressed: _goNextPage,
-              child: Text("Continue",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    foreground: Paint()..color = Colors.white,
-                  ))),
-        ));
-
     Container createTextBac(String text) {
       return Container(
           width: 2000,
@@ -360,6 +342,9 @@ class bac extends State<bacPage> {
             ),
           ));
     }
+
+    var day = DateFormat("EEEE").format(currentDiff);
+    var hour = DateFormat("j").format(currentDiff);
 
     return new WillPopScope(
         onWillPop: () async => false,
@@ -387,6 +372,7 @@ class bac extends State<bacPage> {
                       shotCount = 0;
                       wineCount = 0;
                       spiritCount = 0;
+                      currentDiff = DateTime.now();
                       chartData.clear();
                     });
                   },
@@ -406,6 +392,26 @@ class bac extends State<bacPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text(
+                      "Time Until Sober: ",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 30,
+                      ),
+                    ),
+                    Text(
+                      "$day, $hour",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 25,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 40,
+                      width: 40,
+                    ),
                     createTextBac('BAC:                   $getBetterBac%'),
                     Text(
                       "$weightPounds    $genderString",
@@ -416,7 +422,7 @@ class bac extends State<bacPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 200,
+                      height: 350,
                       child: charts.TimeSeriesChart(
                         _createSampleData(),
                         animate: false,
@@ -424,7 +430,6 @@ class bac extends State<bacPage> {
                     ),
                     buttonCreator1(),
                     buttonCreator2(),
-                    nextPage,
                   ],
                 ),
               ),
