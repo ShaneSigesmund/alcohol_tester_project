@@ -32,6 +32,9 @@ int addedHours2 = 0;
 
 DateTime currentDiff;
 
+var day;
+var hour;
+
 //VALUE AT WHICH BAC DECREASES
 
 double decreaseBAC = 0.015;
@@ -127,6 +130,11 @@ class bac extends State<bacPage> {
       } else {
         genderString = "Female";
       }
+
+      if (day == null && hour == null) {
+        day = DateFormat("EEEE").format(new DateTime.now());
+        hour = DateFormat("j").format(new DateTime.now());
+      }
     });
 
     double temporaryPA = bacVALUE;
@@ -151,7 +159,6 @@ class bac extends State<bacPage> {
     //determine how many hours needed on graph
 
     int currentHour = DateTime.now().hour;
-    int day = DateTime.now().day;
     DateTime now = DateTime.now();
     int numHours = ((bacVALUE - 0.08) / decreaseBAC).round();
 
@@ -167,6 +174,8 @@ class bac extends State<bacPage> {
       bacVALUE -= decreaseBAC;
       currentDiff = now.add(Duration(hours: numHours2));
 
+      day = DateFormat("EEEE").format(currentDiff);
+      hour = DateFormat("j").format(currentDiff);
       print("added hours: $addedHours $addedHours2 $numHours2");
       currentCounter++;
       TimeUntilSober c = new TimeUntilSober(currentDiff, temporaryPA);
@@ -343,9 +352,6 @@ class bac extends State<bacPage> {
           ));
     }
 
-    var day = DateFormat("EEEE").format(currentDiff);
-    var hour = DateFormat("j").format(currentDiff);
-
     return new WillPopScope(
         onWillPop: () async => false,
         child: Scaffold(
@@ -373,6 +379,8 @@ class bac extends State<bacPage> {
                       wineCount = 0;
                       spiritCount = 0;
                       currentDiff = DateTime.now();
+                      day = DateFormat("EEEE").format(currentDiff);
+                      hour = DateFormat("j").format(currentDiff);
                       chartData.clear();
                     });
                   },

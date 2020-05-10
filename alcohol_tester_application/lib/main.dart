@@ -69,7 +69,35 @@ class _MyHomePageState extends State<MyHomePage> {
     myController.dispose();
     super.dispose();
   }
+  @override
+  void initState() {
+    super.initState();
+  }
 
+//Make alerts
+  void _showDialog(BuildContext context) {
+   
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Important Information"),
+          content: new Text("Sample Text to include legal info"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Ok"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   void _updateWeight(weight) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -80,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _goNextPage() {
     setState(() {
+      
       _weight = myController.text;
       _weightGrams = int.parse(_weight) * 454;
       print(_weightGrams);
@@ -96,6 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+  
     final nextPage = Container(
         margin: const EdgeInsets.only(top: 10, bottom: 10),
         child: Material(
@@ -138,6 +168,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   onChanged: (text) {
                     _weight = myController.text;
                   },
+                  onTap: (){
+                    _showDialog(context);
+                    },
                   decoration: InputDecoration(
                     hintText: "Enter Weight",
                     border: OutlineInputBorder(
