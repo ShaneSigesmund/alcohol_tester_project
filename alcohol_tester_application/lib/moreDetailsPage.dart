@@ -7,11 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'SizeConfig.dart';
 
 double male = 0.68;
 double female = 0.55;
 int weight = 0;
 String gender = "";
+
+bool pressAttention1 = false;
+bool pressAttention2 = false;
 
 double percentAlcohol = 0.0;
 
@@ -31,8 +35,6 @@ class moreDetails extends State<moreDetailsPage> {
   void initState() {
     super.initState();
   }
-
-
 
 /*
  * Beer: 12 ounces (341 ml) with 5% alcohol
@@ -69,6 +71,7 @@ class moreDetails extends State<moreDetailsPage> {
   @override
   Widget build(BuildContext context) {
     // print(weightGrams);
+    SizeConfig().init(context);
     final nextPage = Container(
         margin: const EdgeInsets.only(top: 10, bottom: 10),
         child: Material(
@@ -81,12 +84,12 @@ class moreDetails extends State<moreDetailsPage> {
               child: Text("Next",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: SizeConfig.safeBlockHorizontal * 5,
                     foreground: Paint()..color = Colors.white,
                   ))),
         ));
 
-    Column _buildButtons(String name, double value) {
+    Column _buildButtonsMale(String name, double value) {
       return Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -96,7 +99,7 @@ class moreDetails extends State<moreDetailsPage> {
               child: Material(
                 elevation: 5.0,
                 borderRadius: BorderRadius.circular(20),
-                color: Color(0xff5b5b5b),
+                color: pressAttention1 ? Colors.white : colorCustom2,
                 child: MaterialButton(
                     padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                     onPressed: () async {
@@ -104,18 +107,57 @@ class moreDetails extends State<moreDetailsPage> {
                           await SharedPreferences.getInstance();
                       prefs.setDouble("Gender", value);
                       print(prefs.get('Gender'));
+                      setState(() {
+                        pressAttention1 = !pressAttention1;
+                        pressAttention2 = false;
+                        print(pressAttention1);
+                      });
                     },
                     child: Text("$name",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 20,
-                          foreground: Paint()..color = Colors.white,
+                          fontSize: SizeConfig.safeBlockHorizontal * 5,
+                          foreground: Paint()..color = pressAttention1 ? Colors.black: Colors.white,
                         ))),
               ),
             ),
           ]);
     }
 
+    Column _buildButtonsFemale(String name, double value) {
+      return Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 5, bottom: 5),
+              child: Material(
+                elevation: 5.0,
+                borderRadius: BorderRadius.circular(20),
+                color: pressAttention2 ? Colors.white : colorCustom2,
+                child: MaterialButton(
+                    padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                    onPressed: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setDouble("Gender", value);
+                      print(prefs.get('Gender'));
+                      setState(() {
+                        pressAttention2 = !pressAttention2;
+                        pressAttention1 = false;
+                        print(pressAttention2);
+                      });
+                    },
+                    child: Text("$name",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: SizeConfig.safeBlockHorizontal * 5,
+                          foreground: Paint()..color = pressAttention2 ? Colors.black: Colors.white,
+                        ))),
+              ),
+            ),
+          ]);
+    }
 
     Center makeGenderUI() {
       return Center(
@@ -133,12 +175,11 @@ class moreDetails extends State<moreDetailsPage> {
                   'What is your biological sex?',
                   style: TextStyle(fontSize: 25),
                 ),
-                SizedBox(height: 40),
-                _buildButtons("Male", 0.68),
-                SizedBox(height: 25),
-                _buildButtons("Female", 0.55),
-                SizedBox(height: 40),
-                
+                SizedBox(height: SizeConfig.blockSizeVertical * 5),
+                _buildButtonsMale("Male", 0.68),
+                SizedBox(height: SizeConfig.blockSizeVertical * 2.5),
+                _buildButtonsFemale("Female", 0.55),
+                SizedBox(height: SizeConfig.blockSizeVertical * 5),
                 nextPage,
               ],
             ),
@@ -164,4 +205,3 @@ class moreDetails extends State<moreDetailsPage> {
             body: makeGenderUI()));
   }
 }
-

@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'SizeConfig.dart';
+
 double male = 0.68;
 double female = 0.55;
 int weight = 0;
@@ -238,7 +240,7 @@ class bac extends State<bacPage> {
               _getBeerGrams();
             });
           },
-          icon: Image.asset('graphics/beer.png', height: 60, width: 40),
+          icon: Image.asset('graphics/beer.png', height: SizeConfig.blockSizeVertical * 8.92, width: SizeConfig.blockSizeHorizontal * 10),
           label: Text("$shotCount"),
         )),
         Expanded(
@@ -249,7 +251,7 @@ class bac extends State<bacPage> {
               _getWineGrams();
             });
           },
-          icon: Image.asset('graphics/wine.png', height: 60, width: 40),
+          icon: Image.asset('graphics/wine.png', height: SizeConfig.blockSizeVertical * 8.92, width: SizeConfig.blockSizeHorizontal * 10),
           label: Text("$wineCount"),
         )),
       ],
@@ -267,7 +269,7 @@ class bac extends State<bacPage> {
               _getSpiritsGrams();
             });
           },
-          icon: Image.asset('graphics/shot.png', height: 60, width: 40),
+          icon: Image.asset('graphics/shot.png', height: SizeConfig.blockSizeVertical * 8.92, width: SizeConfig.blockSizeHorizontal * 10),
           label: Text("$spiritCount"),
         )),
         Expanded(
@@ -275,7 +277,7 @@ class bac extends State<bacPage> {
           onPressed: () {
             setState(() {});
           },
-          icon: Image.asset('graphics/blank.png', height: 60, width: 40),
+          icon: Image.asset('graphics/blank.png', height: SizeConfig.blockSizeVertical * 8.92, width: SizeConfig.blockSizeHorizontal * 10),
           label: Text(""),
         )),
       ],
@@ -319,6 +321,7 @@ class bac extends State<bacPage> {
   @override
   Widget build(BuildContext context) {
     // print(weightGrams);
+    SizeConfig().init(context);
     String getBetterBac = (bacVALUE).toStringAsFixed(5);
     void _goNextPage() {
       setState(() {
@@ -331,8 +334,8 @@ class bac extends State<bacPage> {
 
     Container createTextBac(String text) {
       return Container(
-          width: 2000,
-          height: 40,
+          width: SizeConfig.blockSizeHorizontal * 200,
+          height: SizeConfig.blockSizeVertical * 5,
           child: new Container(
             child: Material(
               elevation: 5.0,
@@ -344,7 +347,7 @@ class bac extends State<bacPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 25,
+                    fontSize: SizeConfig.blockSizeVertical * 2.8,
                   ),
                 ),
               ),
@@ -386,7 +389,7 @@ class bac extends State<bacPage> {
                   },
                   child: Text(
                     'Reset',
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: SizeConfig.blockSizeVertical * 2.24),
                   )),
             ],
           ),
@@ -405,7 +408,7 @@ class bac extends State<bacPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 30,
+                        fontSize: SizeConfig.blockSizeVertical * 3.36,
                       ),
                     ),
                     Text(
@@ -413,12 +416,12 @@ class bac extends State<bacPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 25,
+                        fontSize: SizeConfig.blockSizeVertical * 2.8,
                       ),
                     ),
                     SizedBox(
-                      height: 40,
-                      width: 40,
+                      height: SizeConfig.blockSizeVertical * 4.48,
+                      width: SizeConfig.blockSizeHorizontal * 4.48,
                     ),
                     createTextBac('BAC:                   $getBetterBac%'),
                     Text(
@@ -426,11 +429,11 @@ class bac extends State<bacPage> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 25,
+                        fontSize: SizeConfig.blockSizeVertical * 2.8,
                       ),
                     ),
                     SizedBox(
-                      height: 350,
+                      height: SizeConfig.blockSizeVertical * 39,
                       child: charts.TimeSeriesChart(
                         _createSampleData(),
                         animate: false,
