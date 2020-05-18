@@ -36,29 +36,6 @@ class moreDetails extends State<moreDetailsPage> {
     super.initState();
   }
 
-/*
- * Beer: 12 ounces (341 ml) with 5% alcohol
- * Wine: 5 ounces (142 ml) with 12% alcohol
- * Spirits: 1.5 ounces (43 ml) with 40% alcohol
- * 
- * One STANDARD Canadian drink contains: 13.6 grams of alcohol
- */
-  void _getBeerGrams(int i) {
-    percentAlcohol += i * (341 * 0.05 * 0.789);
-  }
-
-  void _getWineGrams(int i) {
-    percentAlcohol += i * (142 * 0.12 * 0.789);
-  }
-
-  void _getSpiritsGrams(int i) {
-    percentAlcohol += i * (43 * 0.4 * 0.789);
-  }
-
-  void _getBAC() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-  }
-
   void _goNextPage() {
     setState(() {
       //update user weight in shared preferences
@@ -117,7 +94,9 @@ class moreDetails extends State<moreDetailsPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: SizeConfig.safeBlockHorizontal * 5,
-                          foreground: Paint()..color = pressAttention1 ? Colors.black: Colors.white,
+                          foreground: Paint()
+                            ..color =
+                                pressAttention1 ? Colors.black : Colors.white,
                         ))),
               ),
             ),
@@ -152,7 +131,9 @@ class moreDetails extends State<moreDetailsPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: SizeConfig.safeBlockHorizontal * 5,
-                          foreground: Paint()..color = pressAttention2 ? Colors.black: Colors.white,
+                          foreground: Paint()
+                            ..color =
+                                pressAttention2 ? Colors.black : Colors.white,
                         ))),
               ),
             ),
